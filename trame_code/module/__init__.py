@@ -7,13 +7,13 @@ serve_path = str(Path(__file__).with_name("serve").resolve())
 serve = {"__trame_code": serve_path}
 
 # List of JS files to load (usually from the serve path above)
-scripts = ["__trame_code/trame-code.umd.js"]
+scripts = ["__trame_code/vue-gantt.umd.js"]
 
 # List of CSS files to load (usually from the serve path above)
-styles = ["__trame_code/style.css"]
+styles = ["__trame_code/vue-gantt.css"]
 
 # List of Vue plugins to install/load
-vue_use = ["trame_code"]
+# vue_use = ["trame_code"]
 
 # Uncomment to add entries to the shared state
 # state = {}

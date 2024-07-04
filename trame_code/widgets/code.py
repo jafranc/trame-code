@@ -3,7 +3,7 @@ from trame_client.widgets.core import AbstractElement
 from .. import module
 
 __all__ = [
-    "Editor",
+    "Gantt",
 ]
 
 
@@ -15,36 +15,71 @@ class HtmlElement(AbstractElement):
 
 
 # Expose your vue component(s)
-class Editor(HtmlElement):
+# class Editor(HtmlElement):
+#     """
+#     Monaco Editor component
+#
+#     Properties:
+#
+#     :param options:
+#     :param value:
+#     :param theme:
+#     :param language:
+#     :param textmate:
+#
+#     Events:
+#
+#     :param input:
+#
+#     """
+#
+#     def __init__(self, **kwargs):
+#         super().__init__(
+#             "vs-editor",
+#             **kwargs,
+#         )
+#         self._attr_names += [
+#             "options",
+#             "value",
+#             "theme",
+#             "language",
+#             "textmate",
+#         ]
+#         self._event_names += [
+#             "input",
+#         ]
+class Gantt(HtmlElement):
     """
     Monaco Editor component
 
     Properties:
 
-    :param options:
-    :param value:
-    :param theme:
-    :param language:
-    :param textmate:
-
-    Events:
-
-    :param input:
+    :param items:
+    :param title:
+    :param fields:
+    :param levels:
+    :param dateLimit:
+    :param startDate:
+    :param endDate:
+    :param canEdit:
 
     """
 
     def __init__(self, **kwargs):
         super().__init__(
-            "vs-editor",
+            "gantt",
             **kwargs,
         )
         self._attr_names += [
-            "options",
-            "value",
-            "theme",
-            "language",
-            "textmate",
+            "items",
+            "title",
+            "fields",
+            "levels",
+            "dateLimit",
+            "startDate",
+            "endDate",
+            "canEdit"
         ]
         self._event_names += [
-            "input",
+            "update"
         ]
