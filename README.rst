@@ -18,9 +18,9 @@ Build and install the Vue components
 
 .. code-block:: console
 
-    cd vue-components
+    cd vue-gantt
     npm i
-    npm run build
+    npm run build-bundle
     cd -
 
 Install the python library
