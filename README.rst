@@ -26,5 +26,12 @@ Build and install the Vue components
 Install the python library
 
 .. code-block:: console
-
+    python3 -m venv .venv
+    . .venv/bin/activate
     pip install -e .
+
+Launch example
+
+.. code-block:: console
+   python3 example/gantt-test.py
+
