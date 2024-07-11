@@ -13,41 +13,6 @@ class HtmlElement(AbstractElement):
         if self.server:
             self.server.enable_module(module)
 
-
-# Expose your vue component(s)
-# class Editor(HtmlElement):
-#     """
-#     Monaco Editor component
-#
-#     Properties:
-#
-#     :param options:
-#     :param value:
-#     :param theme:
-#     :param language:
-#     :param textmate:
-#
-#     Events:
-#
-#     :param input:
-#
-#     """
-#
-#     def __init__(self, **kwargs):
-#         super().__init__(
-#             "vs-editor",
-#             **kwargs,
-#         )
-#         self._attr_names += [
-#             "options",
-#             "value",
-#             "theme",
-#             "language",
-#             "textmate",
-#         ]
-#         self._event_names += [
-#             "input",
-#         ]
 class Gantt(HtmlElement):
     """
     Monaco Editor component
@@ -81,5 +46,6 @@ class Gantt(HtmlElement):
             "canEdit"
         ]
         self._event_names += [
+            "input",
             "update"
         ]

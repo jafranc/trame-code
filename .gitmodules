@@ -1,0 +1,3 @@
+[submodule "vue-gantt"]
+	path = vue-gantt
+	url = https://github.com/jafranc/vue-gantt
