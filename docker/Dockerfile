@@ -50,15 +50,14 @@ RUN groupadd trame-user -g 1000 && \
     chown -R trame-user:trame-user /deploy
 #FROM kitware/trame as pre-stage
 
-WORKDIR /app
+WORKDIR /deploy
 RUN apt-get update && apt-get install -y git python3-pip curl python2
-RUN git clone https://github.com/jafranc/trame-code -b fork/test-gantt
-WORKDIR /app/trame-code
+RUN git clone https://github.com/jafranc/trame-code -b fork/test-gantt /deploy
 RUN git submodule update --init --recursive
 
 # pre-build-stage
 # Copy the apache configuration file into place
-WORKDIR /app/trame-code/docker
+WORKDIR /deploy/docker
 COPY config/apache/001-trame.conf /etc/apache2/sites-available/001-trame.conf
 COPY config/default-launcher.json /opt/trame/default-launcher.json
 
@@ -92,4 +91,4 @@ EXPOSE 80
 #CMD ["/usr/bin/nginx", "-g", "deamon off;" ]
 #ENTRYPOINT [ "python3", "/app/trame-code/example/gantt-test.py","--server" ]
 
-ENTRYPOINT ["/opt/trame/entrypoint.sh"]
+ENTRYPOINT ["/opt/trame/entrypoint.sh","build"]
