@@ -1,0 +1,95 @@
+ARG BASE_IMAGE=ubuntu:20.04
+FROM ${BASE_IMAGE}
+
+# Necessary to install tzdata. It will default to UTC.
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Make sure we enable all GPU if we have one
+ENV NVIDIA_DRIVER_CAPABILITIES=all
+
+RUN apt-get update && \
+    apt-get install -y \
+      wget \
+      apache2 \
+      apache2-dev \
+      libapr1-dev \
+      apache2-utils \
+      gosu && \
+    rm -rf /var/lib/apt/lists/*
+
+# Set up needed permissions and users
+# - User groups:
+#   - trame-user: non-priviledge user for running and accessing data
+#     => (optional) Provide runtime env TRAME_USER_DATA=/docker/path to query which user to map trame-user to
+#   - docker: group to be remapped to docker host group to allow docker in docker.
+#     - trame-user can perform docker operaction by allowing access to /var/run/docker.sock
+#   - proxy-mapping: group for r/w on mapping file
+#     - trame-user so the launcher can update the mapping file (w)
+#     - www-data so that apache can read the file and handle the network routing (r)
+#   - www-data: apache user
+#     - added to proxy-mapping so it can read the mapping file for routing network
+#     - added to trame-user so it can serve user data
+# - Magic numbers:
+#   - 1000: Default first user
+#   - 5001/5002: Large id to prevent conflict with existing host uid/gid
+RUN groupadd trame-user -g 1000 && \
+    groupadd proxy-mapping -g 5001 && \
+    groupadd docker -g 5002 && \
+    useradd -u 1000 -g trame-user -G proxy-mapping -s /sbin/nologin trame-user && \
+    usermod -a -G proxy-mapping www-data && \
+    usermod -a -G trame-user www-data && \
+    usermod -a -G docker trame-user && \
+    mkdir -p /opt/trame && \
+    chown -R trame-user:trame-user /opt/trame && \
+    mkdir -p /home/trame-user && \
+    chown -R trame-user:trame-user /home/trame-user && \
+    touch /opt/trame/proxy-mapping.txt && \
+    chown trame-user:proxy-mapping /opt/trame/proxy-mapping.txt && \
+    chmod 660 /opt/trame/proxy-mapping.txt && \
+    mkdir -p /deploy && \
+    chown -R trame-user:trame-user /deploy
+#FROM kitware/trame as pre-stage
+
+WORKDIR /app
+RUN apt-get update && apt-get install -y git python3-pip curl python2
+RUN git clone https://github.com/jafranc/trame-code -b fork/test-gantt
+WORKDIR /app/trame-code
+RUN git submodule update --init --recursive
+
+# pre-build-stage
+# Copy the apache configuration file into place
+WORKDIR /app/trame-code/docker
+COPY config/apache/001-trame.conf /etc/apache2/sites-available/001-trame.conf
+COPY config/default-launcher.json /opt/trame/default-launcher.json
+
+# Configure the apache web server
+RUN a2enmod vhost_alias && \
+    a2enmod proxy && \
+    a2enmod proxy_http && \
+    a2enmod proxy_wstunnel && \
+    a2enmod rewrite && \
+    a2enmod headers && \
+    a2dissite 000-default.conf && \
+    a2ensite 001-trame && \
+    a2dismod autoindex -f
+
+# Copy the scripts into place
+COPY scripts/* /opt/trame/
+
+# build stage
+#FROM node:lts-alpine as build-stage
+RUN apt install -y npm 
+RUN npm install -g n nginx
+RUN n 15
+WORKDIR /app/trame-code/vue-gantt
+RUN npm install
+RUN npm run build-bundle
+
+WORKDIR /app/trame-code
+RUN python3 -m pip install -e .
+EXPOSE 80
+
+#CMD ["/usr/bin/nginx", "-g", "deamon off;" ]
+#ENTRYPOINT [ "python3", "/app/trame-code/example/gantt-test.py","--server" ]
+
+ENTRYPOINT ["/opt/trame/entrypoint.sh"]
